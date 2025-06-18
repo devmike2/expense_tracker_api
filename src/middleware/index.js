@@ -7,10 +7,9 @@ const authChecker = async (req,res,next) =>{
         const {authorization} = req.headers
         if(!authorization) return res.status(401).json({status:false, message: 'Token not found'})
         const token = authorization.split(' ')[1]
-        console.log(token)
         const exist = await Oauth.findOne({token})
-        console.log(exist)
-        if(!exist) return res.status(401).json({status: false, message: 'Invalid token1'})
+        
+        if(!exist) return res.status(401).json({status: false, message: 'Invalid token'})
         const now = new Date(Date.now())
         if(exist.expire_in < now) return res.status(401).json({status: false, message: 'Expired token'})
         const decoded = jwt.verify(token, jwt_secret)
