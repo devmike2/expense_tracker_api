@@ -47,11 +47,29 @@ const saveToken  = async (token,user_id, expire_in,save = null) =>{
     return token
 
 }
+const sendEmail = async (email, subject,content) =>{
+    const mailOption = {
+        from: siteName,
+        to: email, 
+        subject: subject,
+        html: content
+    }
+
+    try {
+        const sendmail = await config.transporter.sendMail(mailOption);
+        return sendmail.accepted.length > 0; 
+      } catch (error) {
+        console.error('Email sending failed:', error);
+        return false;
+    }
+}
+
 
 module.exports = {
     comparePassord,
     hashPassword,
     siteName,
     generateToken,
-    saveToken
+    saveToken,
+    sendEmail
 }
