@@ -24,7 +24,7 @@ const saveToken  = async (token,user_id, expire_in,save = null) =>{
         return false
     }
     const check = await Oauth.findOne({user_id})
-
+    console.log(check)
     if(check){
         const update = {
             expire_in,
@@ -32,8 +32,8 @@ const saveToken  = async (token,user_id, expire_in,save = null) =>{
         } 
         if(save){
             await Oauth.updateOne(
-                {id: check.id},
-                {set: update}
+                {_id: check._id},
+                {$set: update}
             )
         }
     }

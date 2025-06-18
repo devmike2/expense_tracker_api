@@ -1,5 +1,5 @@
 const { hashPassword, generateToken, saveToken, comparePassord, sendEmail, siteName } = require("../helper/utils")
-const { Reset } = require("../model")
+const { Reset, Oauth } = require("../model")
 const User = require("../model/userModel")
 const fs = require('fs')
 
@@ -76,8 +76,8 @@ const login = async (req, res) =>{
         userDetails.verified = user.verfied
         const expires = new Date(Date.now() +  3*30*24*60*60*1000)
         const token  = generateToken(userDetails)
-        await saveToken(token, userDetails._id,expires, true)
-
+        const savedToken = await saveToken(token, userDetails._id,expires, true)
+        if(savedToken) console.log('token saved')
         return res.status(200).json({
             status: true,
             message: 'Login successful',
@@ -93,7 +93,23 @@ const login = async (req, res) =>{
 }
 
 const logout = async (req, res) =>{
-
+    try{
+        const userId = req.user_id
+        const user = await User.findOne({_id: userId})
+        if(!user) return res.status(403).json({status: false, message: 'cannot logout an invalid user'})
+        const deleteToken = await Oauth.findOneAndDelete({user_id: userId})
+        if(!deleteToken)return res.status(500).json({status: false, message:'could not logout user'})
+        return res.status(200).json({
+            status: true,
+            message: 'Logout successful'
+        })
+    }catch(error){
+        console.log(error)
+        return res.status(500).json({
+            status: false,
+            message: error.message || 'Internal server error'
+        })
+    }
 } 
 
 const veriryEmailCode = async (req,res) =>{
