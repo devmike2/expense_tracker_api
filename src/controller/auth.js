@@ -113,10 +113,63 @@ const logout = async (req, res) =>{
 } 
 
 const veriryEmailCode = async (req,res) =>{
+    try{
 
+    }
+    catch(error){
+        return res.status(500).json({
+            status: false, 
+            message: error.message || 'Internal server error'
+        })
+    }
 }
 const forgotPassword = async(req, res) =>{
+    
+    try{
+        const {email, password, otp} = req.body
+        if(email, !password, !otp){
+            const emailExist = await User.distinct({email})
+            if(!emailExist) return res.status(400).json({status: false, message: 'A otp was sent to the email provided'})
+            
+            const otp = Math.floor(100000+ math.random() * 999999)
+            const expire_in = new Date(Date.now() + 30 * 60 * 1000) //  expires in 30 mins
+            await Reset.create({email, otp, expire_in})
 
+            return res.status(200).json({status: true, message: 'An otp was sent to the provided email'})
+            
+        }
+        if(email, otp){
+            const validOtp = await Reset.findOne({email, otp})
+            if(!validOtp) return res.status(401).json({status: false, message: 'Invalid otp'})
+            if(Date.now () > validOtp.expire_in) return res.status(401).json({status: false, message: 'Expired otp'})
+            return res.status(200).json({status: true, message: 'otp verified, setp 2'})
+        }
+        if(email, otp, password){
+            const validOtp = await Reset.findOne({email, otp})
+            if(!validOtp) return res.status(401).json({status: false, message: 'Inalid otp'})
+            if(Date.now > validOtp.expire_in) return res.status(401).json({status: false, message: 'Expired otp'})
+            const encryptedPassword = await hashPassword(password)
+            const updateData = {}
+            updateData.email = email
+            updateData.password = encryptedPassword
+
+            const updated = await User.findOneAndUpdate({email: updateData.email}, {$set: updateData})
+            if(updated) return res.status(200).json({status: true, message: 'password reset successful'})
+            else return res.status(500).json({status: false, message: 'Colud not update user password'})
+        }
+        else{
+            return res.status(400).json({
+                status: false,
+                message: 'Invalid request'
+            })
+        }
+    }
+    catch(error){
+        return res.status(500).json({
+            status: false, 
+            message: error.message || 'Internal server error'
+        })
+    }
 }
 
 module.exports ={
