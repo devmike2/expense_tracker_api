@@ -1,3 +1,4 @@
+const { string } = require('joi')
 const {Schema, default: mongoose} = require('mongoose')
 
 const oauthSchema = new Schema ({
@@ -34,12 +35,88 @@ const resetModel = new Schema({
     }
 }, {timestamps: true})
 
+const incomeModel = new Schema({
+    name:{
+        type: String,
+        required: true
+    },
+    status:{
+        required: true,
+        type: String,
+        enum: ['successful', 'failed', 'pending']
+    },
+    source: {
+        reuired: true,
+        type: String, //e.g salary
+    },
+    description:{
+        type: String,
+        max_length: 300 
+    },
+    amount: {
+        type: Number,
+        required: true
+    }
+}, {timestamps: true})
+
+const expensesModel = new Schema({
+    name: {
+        required: true,
+        type: String
+    },
+    status:{
+        required: true,
+        type: String,
+        enum: ['successful, approved, pending']
+    },
+    description:{
+        type: String,
+        max_length: 300
+    },
+    amount:{
+        type: Number,
+        required: true
+    },
+    category: {
+        type: String,
+        ref: 'expense_category'
+    }
+}, {timestamps: true})
+
+const expensesCategory = new Schema(({
+    name:{
+        type: String,
+    }
+}))
+const profileModel = new Schema({
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'user',
+        required: true
+    },
+    profile_pic: {
+        required: true,
+        type: String,
+    }
+}, {timestamps: true})
+
+
 const Oauth = mongoose.model('Oauth_access_token', oauthSchema)
 const Reset = mongoose.model('reset', resetModel)
+const Profile = mongoose.model('profile', profileModel)
+const Expenses = mongoose.model('expense', expensesModel)
+const Income = mongoose.model('income', incomeModel)
+const ExpenseCategory = mongoose.model('expense_category', expensesCategory)
 
 
 
 
-
-module.exports = {Oauth, Reset}
+module.exports = {
+    Oauth, 
+    Reset,
+    Profile,
+    Expenses,
+    Income,
+    ExpenseCategory
+}
 
