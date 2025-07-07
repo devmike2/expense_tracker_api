@@ -40,6 +40,11 @@ const incomeModel = new Schema({
         type: String,
         required: true
     },
+     user: {
+        type: Schema.Types.ObjectId,
+        ref: 'user',
+        required: true
+    },
     status:{
         required: true,
         type: String,
@@ -63,6 +68,11 @@ const expensesModel = new Schema({
     name: {
         required: true,
         type: String
+    },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'user',
+        required: true
     },
     status:{
         required: true,
