@@ -3,6 +3,8 @@ const { register, login,logout, forgotPassword,verifyEmailCode } = require('../c
 const { authChecker } = require('../middleware')
 const {me, setProfile, updateProfile, deleteProfile} = require('../controller/user.js')
 const { incomeGet, incomeIdGet, incomePost, incomeDelete, incomePut } = require('../controller/income.js')
+const main = require('../../config/seed.js')
+const { expenseGet, expensesCategoryGet, expenseIdGet, expensePost, expensePut, expenseDelete } = require('../controller/expenses.js')
 
 
 const routes = Router()
@@ -27,6 +29,13 @@ routes.post('/income', authChecker, incomePost)
 routes.put('/income/:incomeId', authChecker,incomePut)
 routes.delete('/income/:incomeId', authChecker, incomeDelete)
 
+//=============== Expenses Routes ==================
+routes.get('/expense/:limit/:page', authChecker, expenseGet)
+routes.get('/expense-category', expensesCategoryGet)
+routes.get('/expense/:id', authChecker,expenseIdGet)
+routes.post('/expense', authChecker,expensePost)
+routes.put('/expense/:id', authChecker, expensePut)
+routes.delete('/expense/:id', authChecker, expenseDelete)
 
 
 module.exports = routes

@@ -77,7 +77,7 @@ const expensesModel = new Schema({
     status:{
         required: true,
         type: String,
-        enum: ['successful, approved, pending']
+        enum: ['successful', 'failed', 'pending']
     },
     description:{
         type: String,
@@ -88,7 +88,7 @@ const expensesModel = new Schema({
         required: true
     },
     category: {
-        type: String,
+        type: Schema.Types.ObjectId,
         ref: 'expense_category'
     }
 }, {timestamps: true})
@@ -96,6 +96,9 @@ const expensesModel = new Schema({
 const expensesCategory = new Schema(({
     name:{
         type: String,
+        required: true,
+        unique: true,
+        trim: true
     }
 }))
 const profileModel = new Schema({

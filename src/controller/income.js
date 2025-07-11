@@ -19,7 +19,9 @@ const incomeGet = async (req, res) =>{
         if(status) transactionFilter.status = status
         
 
-        const incomeRecords = await Income.find(transactionFilter).limit(limit).skip(offset)
+        const incomeRecords = await Income.find(transactionFilter)
+        .limit(limit).skip(offset)
+        .populate({path: 'user', select: 'firstname'})
         if(incomeRecords) return res.status(200).json({status: true, message: 'income fetched', data: incomeRecords})
         else return res.status(203).json({status: true, message: 'No record found', data: []})
     } catch (error) {
@@ -34,9 +36,10 @@ const incomeIdGet = async (req, res) =>{
     try {
         const userId = req.user_id
         const { incomeId } = req.params
-        const incomeRecord = await Income.findById(incomeId)
+        const incomeRecord = await Income.findById(incomeId).populate({path: 'user', select: 'firstname'})
         if (!incomeRecord) return res.status(203).json({status: true, message: 'no record found', data:{}})
-        if(incomeRecord.user != userId) return res.status(403).json({status: false, message: 'unauthorized access'})
+        const incomeUser = incomeRecord.user._id
+        if(incomeUser != userId) return res.status(403).json({status: false, message: 'unauthorized access'})
         return res.status(200).json({
             status: true,
             message: "income details fetched",
@@ -73,7 +76,7 @@ const incomePut = async (req, res) =>{
         const payload = req.body
         const {incomeId}  = req.params
         const incomeExist = await Income.findOne({user: userId, _id:incomeId})
-        if(!incomeExist) return res.status(203).json({status: true, message: 'no income record found', data: {}})
+        if(!incomeExist) return res.status(203).json({status: true, message: 'no income record found to be updated', data: {}})
         const updateIncome = await Income.findByIdAndUpdate(incomeId, {...payload})
         if(updateIncome) return res.status(200).json({status: true, message: 'Income record Updated', data: updateIncome})
         else return res.status(203).json({status: true, message: 'could not update income record', data: {}})
@@ -92,7 +95,8 @@ const incomeDelete = async (req, res) =>{
         const { incomeId } = req.params
         const incomeExist = await Income.findOne({user: userId, _id: incomeId})
         if(!incomeExist) return res.status(203).json({status: true, message: 'no income record found', data: {}})
-        const deleteIncome = await Income.findByIdAndDelete(incomeId)
+        const deleteIncome = await Income.findByIdAndDelete(incomeId
+    )
         if(deleteIncome) return res.status(200).json({status: true, message: 'Income record deleted'})
         else return res.status(203).json({status: false, message: 'could not delete income record'})
     } catch (error) {
