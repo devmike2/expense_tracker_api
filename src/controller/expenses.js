@@ -17,8 +17,8 @@ const expenseGet =  async (req, res) =>{
         .limit(limit).skip(offset)
         .populate({path:'category' , select: 'name'})
         .populate({path:'user',select: 'firstname' })
-        if(expenseRecords) return res.status(200).json({status: true, message: 'Expense fetched', data: expenseRecords})
-        else return res.status(203).json({status: true, message: 'No record found', data: []})
+        return res.status(200).json({status: true, message: 'Expense fetched', data: expenseRecords || []})
+        
     }
     catch (error){
         console.log(error)
@@ -32,7 +32,7 @@ const expenseGet =  async (req, res) =>{
 
 const expensesCategoryGet = async (req, res) =>{
     try{
-        const categories  = await ExpenseCategory.find({})
+        const categories  = await ExpenseCategory.find()
         return res.status(200).json({
             status: true,
             message: 'Expenses Category fetched',
@@ -74,9 +74,9 @@ const expenseIdGet = async (req, res) =>{
 const expensePost = async (req, res) =>{
      try{
         const userId = req.user_id
-        const {name, status, amount, categoryId, description } = req.body
-        if(!name || !status || !amount || !categoryId || !description) return res.status(400).json({status: false, message: "Invalid payload"})
-        const expense = await (await Expenses.create({name, status, amount, category:categoryId, description, user:userId}))
+        const {name, status, amount, category, description } = req.body
+        if(!name || !status || !amount || !category || !description) return res.status(400).json({status: false, message: "Invalid payload"})
+        const expense = await (await Expenses.create({name, status, amount, category, description, user:userId}))
         if(expense) return res.status(200).json({status: true, message: 'Expense added successsfully'})
         else return res.status(203).json({status: true, message: 'could not add expense details'})
     }
@@ -96,8 +96,8 @@ const expensePut = async (req, res) =>{
         const expenseExist = await Expenses.findOne({user: userId, _id:id})
         if(!expenseExist) return res.status(203).json({status: true, message: 'no expense record found to be Updated', data: {}})
         const updateExpense = await Expenses.findByIdAndUpdate(id, {...payload})
-        if(updateExpense) return res.status(200).json({status: true, message: 'Expense record Updated', data: updateExpense})
-        else return res.status(203).json({status: true, message: 'could not update expense record', data: {}})
+        if(updateExpense) return res.status(200).json({status: true, message: 'Expense record Updated'})
+        else return res.status(203).json({status: true, message: 'could not update expense record'})
     }catch(error){
         console.log(error)
         return res.status(500).json({
