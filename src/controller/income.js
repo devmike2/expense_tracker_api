@@ -22,8 +22,21 @@ const incomeGet = async (req, res) =>{
         const incomeRecords = await Income.find(transactionFilter)
         .limit(limit).skip(offset)
         .populate({path: 'user', select: 'firstname'})
-        if(incomeRecords) return res.status(200).json({status: true, message: 'income fetched', data: incomeRecords})
-        else return res.status(203).json({status: true, message: 'No record found', data: []})
+        const count = incomeRecords.length;
+        total = 0
+        incomeRecords.forEach(income => {
+            total += income.amount
+        });
+        if(incomeRecords) return res.status(200).json({
+            status: true, 
+            message: 'income fetched', 
+            data: {
+                count,
+                total,
+                incomeRecord : incomeRecords || []
+            }
+        })
+        
     } catch (error) {
         console.log(error)
         return res.status(500).json({

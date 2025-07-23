@@ -11,7 +11,7 @@ app.use(cors({
     methods: ['GET', 'PATCH','PUT', 'POST', 'DELETE']
 }))
 app.use(helmet())
-app.use(express.json({limit: '2000kb'}))
+app.use(express.json({limit: '2048kb'}))
 // app.use(xss)
 app.use((req, res, next) =>{
     console.log(req.path, req.method)

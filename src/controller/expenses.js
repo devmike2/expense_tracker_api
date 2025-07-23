@@ -4,20 +4,33 @@ const expenseGet =  async (req, res) =>{
     try{
         const userId = req.user_id
         let {limit, page} = req.params
-        const { startDate, endDate, status, categoryId ,name} = req.query
+        const { startDate, endDate, status, category ,name} = req.query
         limit = parseInt(limit)
         page = parseInt(page)
         const offset = (page-1) * limit
         const transactionFilter = {}
         transactionFilter.user = userId
-        if(categoryId) transactionFilter.category = categoryId
+        if(category) transactionFilter.category = category
         if(name) transactionFilter.name = name
         if(status) transactionFilter.status = status
         const expenseRecords = await Expenses.find(transactionFilter)
         .limit(limit).skip(offset)
         .populate({path:'category' , select: 'name'})
         .populate({path:'user',select: 'firstname' })
-        return res.status(200).json({status: true, message: 'Expense fetched', data: expenseRecords || []})
+        const count = expenseRecords.length;
+        total = 0
+        expenseRecords.forEach(expense => {
+            total += expense.amount
+        });
+        return res.status(200).json({
+            status: true, 
+            message: 'Expense fetched', 
+            data:{
+                count,
+                total,
+                expenseRecord : expenseRecords || []
+            }         
+        })
         
     }
     catch (error){
